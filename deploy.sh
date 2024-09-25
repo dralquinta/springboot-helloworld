@@ -11,9 +11,6 @@ REGION="southamerica-west1"
 # Build the Spring Boot JAR
 mvn clean package
 
-# Navigate to the target directory
-cd target
-
 # Build the Docker image
 docker build -t ${GCR_REPO}/${IMAGE_NAME}:latest .
 
