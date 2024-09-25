@@ -17,14 +17,6 @@ spec:
           image: southamerica-west1-docker.pkg.dev/dryruns/springboot-helloworld/springboot-helloworld:latest # Use the correct image tag
           ports:
             - containerPort: 8080 # Expose the port your Spring Boot app listens on
-          livenessProbe: # Add health checks if needed
-            httpGet:
-              path: /actuator/health # Or another suitable health check endpoint
-              port: 8080
-          readinessProbe: # Add readiness checks if needed
-            httpGet:
-              path: /actuator/health # Or another suitable readiness check endpoint
-              port: 8080
 ---
 apiVersion: v1
 kind: Service
