@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Random;
 
@@ -22,32 +22,23 @@ public class DemoHelloWorldApplication {
     class MockController {
 
         private final Random random = new Random();
+        private static final Logger logger = LoggerFactory.getLogger(MockController.class);
 
         @GetMapping("/")
-        public String hello() throws CustomInternalServerErrorException {
-            // Introduce a 30% chance of throwing an exception
-            if (random.nextInt(100) < 30) {
-                throw new CustomInternalServerErrorException("Random Internal Server Error occurred!");
+        public ResponseEntity<String> hello() {
+            // Introduce a 50% chance of returning a 500 error
+            try {
+                if (random.nextInt(100) < 50) {
+                    throw new RuntimeException("Simulated Internal Server Error");
+                }
+                // Log successful requests to stdout
+                logger.info("Request successful: Hello, World!");
+                return new ResponseEntity<>("Hello, World!", HttpStatus.OK);
+            } catch (Exception ex) {
+                // Log the full stack trace to stderr
+                logger.error("Internal Server Error occurred", ex);
+                return new ResponseEntity<>("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
             }
-            return "Hello, World!";
-        }
-    }
-
-    // Custom exception to simulate 500 error
-    class CustomInternalServerErrorException extends RuntimeException {
-        public CustomInternalServerErrorException(String message) {
-            super(message);
-        }
-    }
-
-    // Global exception handler to catch the custom exception and return a 500 response
-    @ControllerAdvice
-    class GlobalExceptionHandler {
-
-        @ExceptionHandler(CustomInternalServerErrorException.class)
-        public ResponseEntity<String> handleCustomException(CustomInternalServerErrorException ex) {
-            // Return a 500 error response with the exception message
-            return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
