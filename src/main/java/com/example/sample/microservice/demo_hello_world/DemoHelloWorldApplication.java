@@ -17,7 +17,7 @@ public class DemoHelloWorldApplication {
 @RestController
 class MockController {
 
-    @GetMapping("/hello")
+    @GetMapping("/")
     public String hello() {
         return "Hello, World!";
     }
