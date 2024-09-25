@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: springboot-helloworld-deployment
+spec:
+  replicas: 3 # Adjust the number of replicas as needed
+  selector:
+    matchLabels:
+      app: springboot-helloworld
+  template:
+    metadata:
+      labels:
+        app: springboot-helloworld
+    spec:
+      containers:
+        - name: springboot-helloworld
+          image: southamerica-west1-docker.pkg.dev/springboot-helloworld/springboot-helloworld/springboot-helloworld:latest # Use the correct image tag
+          ports:
+            - containerPort: 8080 # Expose the port your Spring Boot app listens on
+          livenessProbe: # Add health checks if needed
+            httpGet:
+              path: /actuator/health # Or another suitable health check endpoint
+              port: 8080
+          readinessProbe: # Add readiness checks if needed
+            httpGet:
+              path: /actuator/health # Or another suitable readiness check endpoint
+              port: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: springboot-helloworld-service
+spec:
+  selector:
+    app: springboot-helloworld
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080 # Map the service port to the container port
+  type: LoadBalancer # Or use NodePort if you don't need external access
