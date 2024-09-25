@@ -2,7 +2,7 @@ mvn clean package
 ls -l target/
 pwd
 
-gcloud builds submit . --tag southamerica-west1-docker.pkg.dev/springboot-helloworld/springboot-helloworld/springboot-helloworld
+gcloud builds submit --no-cache --tag southamerica-west1-docker.pkg.dev/springboot-helloworld/springboot-helloworld/springboot-helloworld
 
 gcloud run deploy springboot-helloworld \
   --image southamerica-west1-docker.pkg.dev/springboot-helloworld/springboot-helloworld/springboot-helloworld \
