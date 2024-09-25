@@ -18,7 +18,8 @@ docker build -t ${GCR_REPO}/${IMAGE_NAME}:latest .
 docker push ${GCR_REPO}/${IMAGE_NAME}:latest
 
 # Configure kubectl to connect to your GKE cluster
-gcloud container clusters get-credentials ${GKE_CLUSTER_NAME} --region ${REGION} --project ${PROJECT}
+gcloud container clusters get-credentials ${GKE_CLUSTER_NAME} --region ${REGION} --project ${PROJECT_ID}
+
 
 
 # Deploy to GKE

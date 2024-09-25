@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: springboot-helloworld
-          image: southamerica-west1-docker.pkg.dev/springboot-helloworld/springboot-helloworld/springboot-helloworld:latest # Use the correct image tag
+          image: southamerica-west1-docker.pkg.dev/dryruns/springboot-helloworld/springboot-helloworld:latest # Use the correct image tag
           ports:
             - containerPort: 8080 # Expose the port your Spring Boot app listens on
           livenessProbe: # Add health checks if needed
