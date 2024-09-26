@@ -1,37 +1,22 @@
 apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: chaos-mesh-namespace-role
-  namespace: default  # Ensure this is the correct namespace
-rules:
-  - apiGroups: ["chaos-mesh.org"]
-    resources: ["jvmchaos"]
-    verbs: ["get", "list", "watch", "create", "patch", "delete"]
-
----
-apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: chaos-mesh-kernelchaos-viewer
+  name: chaos-mesh-full-access
 rules:
   - apiGroups: ["chaos-mesh.org"]
-    resources: ["kernelchaos"]
-    verbs: ["get", "list", "watch", "create", "patch", "delete"]
-
-
+    resources: ["*"]  # This will grant permissions for all resources in the chaos-mesh.org API group
+    verbs: ["get", "list", "watch", "create", "delete", "update", "patch"]
 
 ---
-
 apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
+kind: ClusterRoleBinding
 metadata:
-  name: chaos-mesh-rolebinding
-  namespace: default  # Ensure this matches the namespace where the issue is happening
+  name: chaos-mesh-full-access-binding
 subjects:
   - kind: ServiceAccount
-    name: account-default-viewer-fvdyi
-    namespace: default  # The namespace of your service account
+    name: account-default-manager-monkey  # Replace with your actual service account
+    namespace: default
 roleRef:
-  kind: Role
-  name: chaos-mesh-namespace-role  # The name of the Role we just created
+  kind: ClusterRole
+  name: chaos-mesh-full-access
   apiGroup: rbac.authorization.k8s.io

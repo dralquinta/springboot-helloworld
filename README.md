@@ -18,33 +18,57 @@ Chaos Testing setup:
 dalquint@cloudshell:~ (dryruns)$ helm repo add chaos-mesh https://charts.chaos-mesh.org
 helm repo update
 kubectl create namespace chaos-testing
-helm install chaos-mesh chaos-mesh/chaos-mesh -n chaos-testing --set dashboard.create=true --set chaosDaemon.runtime=containerd --set chaosDaemon.socketPath=/run/containerd/containerd.sock
-"chaos-mesh" has been added to your repositories
-Hang tight while we grab the latest from your chart repositories...
-...Successfully got an update from the "chaos-mesh" chart repository
-...Successfully got an update from the "ingres-nginx" chart repository
-...Successfully got an update from the "ingress-nginx" chart repository
-Update Complete. ⎈Happy Helming!⎈
-namespace/chaos-testing created
-W0926 12:16:44.690369    3720 warnings.go:70] autopilot-default-resources-mutator:Autopilot updated DaemonSet chaos-testing/chaos-daemon: defaulted unspecified 'cpu' resource for containers [chaos-daemon] (see http://g.co/gke/autopilot-defaults).
-W0926 12:16:44.901237    3720 warnings.go:70] autopilot-default-resources-mutator:Autopilot updated Deployment chaos-testing/chaos-controller-manager: adjusted 'cpu' resource to meet requirements for containers [chaos-mesh] (see http://g.co/gke/autopilot-defaults).
-W0926 12:16:44.915881    3720 warnings.go:70] autopilot-default-resources-mutator:Autopilot updated Deployment chaos-testing/chaos-dashboard: adjusted 'cpu' resource to meet requirements for containers [chaos-dashboard] (see http://g.co/gke/autopilot-defaults).
-Error: INSTALLATION FAILED: admission webhook "warden-validating.common-webhooks.networking.gke.io" denied the request: GKE Warden rejected the request because it violates one or more constraints.
-Violations details: {"[denied by autogke-disallow-hostnamespaces]":["enabling hostPID is not allowed in Autopilot."],"[denied by autogke-disallow-privilege]":["container chaos-daemon is privileged; not allowed in Autopilot"],"[denied by autogke-no-write-mode-hostpath]":["hostPath volume socket-path in container chaos-daemon is accessed in write mode; disallowed in Autopilot.","hostPath volume sys-path in container chaos-daemon is accessed in write mode; disallowed in Autopilot.","hostPath volume lib-modules in container chaos-daemon is accessed in write mode; disallowed in Autopilot."]}
-Requested by user: 'dalquint@dralquinta.altostrat.com', groups: 'system:authenticated'.
+helm install chaos-mesh chaos-mesh/chaos-mesh \
+  -n chaos-testing --create-namespace \
+  --set dashboard.create=true \
+  --set chaosDaemon.runtime=containerd \
+  --set chaosDaemon.socketPath=/run/containerd/containerd.sock
+NAME: chaos-mesh
+LAST DEPLOYED: Thu Sep 26 14:21:29 2024
+NAMESPACE: chaos-testing
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+1. Make sure chaos-mesh components are running
+   kubectl get pods --namespace chaos-testing -l app.kubernetes.io/instance=chaos-mesh
 ```
 
 
 2. Check that installation went fine: 
 
 ```shell
-dalquint@cloudshell:~ (dryruns)$ kubectl get pods -n chaos-testing
+dalquint@cloudshell:~/DevOps/springboot-helloworld$ kubectl get pods --namespace chaos-testing -l app.kubernetes.io/instance=chaos-mesh
 NAME                                        READY   STATUS    RESTARTS   AGE
-chaos-controller-manager-76b9bf6d49-kf6gn   1/1     Running   0          101s
-chaos-controller-manager-76b9bf6d49-pn59z   1/1     Running   0          101s
-chaos-controller-manager-76b9bf6d49-r65z2   1/1     Running   0          101s
-chaos-dashboard-7c4f46c965-lfjq4            1/1     Running   0          101s
-chaos-dns-server-778bc979c7-zhns8           1/1     Running   0          101s
+chaos-controller-manager-5fdb5c6b57-674kx   1/1     Running   0          17m
+chaos-controller-manager-5fdb5c6b57-nwzq7   1/1     Running   0          6m57s
+chaos-controller-manager-5fdb5c6b57-x4nkc   1/1     Running   0          6m51s
+chaos-daemon-5s79n                          1/1     Running   0          7m47s
+chaos-daemon-66n9h                          1/1     Running   0          17m
+chaos-daemon-6sqbr                          1/1     Running   0          5m3s
+chaos-daemon-7hzfb                          1/1     Running   0          7m37s
+chaos-daemon-7sr6p                          1/1     Running   0          4m59s
+chaos-daemon-9g5sg                          1/1     Running   0          5m1s
+chaos-daemon-b5ks6                          1/1     Running   0          17m
+chaos-daemon-c9dfz                          1/1     Running   0          17m
+chaos-daemon-cldnd                          1/1     Running   0          17m
+chaos-daemon-gqqg4                          1/1     Running   0          5m1s
+chaos-daemon-gxsbz                          1/1     Running   0          17m
+chaos-daemon-kls75                          1/1     Running   0          7m45s
+chaos-daemon-lwdxl                          1/1     Running   0          17m
+chaos-daemon-n4l4m                          1/1     Running   0          14m
+chaos-daemon-nm7bb                          1/1     Running   0          17m
+chaos-daemon-nqgl9                          1/1     Running   0          4m57s
+chaos-daemon-qkg6t                          1/1     Running   0          4m59s
+chaos-daemon-rndsc                          1/1     Running   0          5m2s
+chaos-daemon-tdjrx                          1/1     Running   0          17m
+chaos-daemon-tnnmp                          1/1     Running   0          5m
+chaos-daemon-twkgc                          1/1     Running   0          17m
+chaos-daemon-vzv9d                          1/1     Running   0          5m
+chaos-daemon-zbxbv                          1/1     Running   0          5m3s
+chaos-daemon-zkc9l                          1/1     Running   0          7m44s
+chaos-dashboard-7c66c9f685-rn25s            1/1     Running   0          17m
+chaos-dns-server-69dd8595bf-wcvmh           1/1     Running   0          3m41s
 
 ```
 
@@ -56,63 +80,41 @@ kubectl port-forward -n chaos-testing svc/chaos-dashboard 2333:2333
 
 Access should be available in http://localhost:2333
 
-4. Generate RBAC and apply it: 
-
-```yaml
-kind: ServiceAccount
-apiVersion: v1
-metadata:
-  namespace: default
-  name: account-default-viewer-fvdyi
-
----
-kind: Role
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  namespace: default
-  name: role-default-viewer-fvdyi
-rules:
-- apiGroups: [""]
-  resources: ["pods", "namespaces"]
-  verbs: ["get", "watch", "list"]
-- apiGroups: ["chaos-mesh.org"]
-  resources: [ "*" ]
-  verbs: ["get", "list", "watch"]
-
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: bind-default-viewer-fvdyi
-  namespace: default
-subjects:
-- kind: ServiceAccount
-  name: account-default-viewer-fvdyi
-  namespace: default
-roleRef:
-  kind: Role
-  name: role-default-viewer-fvdyi
-  apiGroup: rbac.authorization.k8s.io
-
-```
+4. Generate RBAC and apply it. See file under ./chaos-engineering/setup/01_rbac.yaml 
 
 
 ```shell
-dralquinta-mac:chaos-engineering dralquinta$ kubectl apply -f rbac.yaml 
-serviceaccount/account-default-viewer-fvdyi created
-role.rbac.authorization.k8s.io/role-default-viewer-fvdyi created
-rolebinding.rbac.authorization.k8s.io/bind-default-viewer-fvdyi created
+dralquinta-mac:setup dralquinta$ kubectl apply -f rbac.yaml 
+serviceaccount/account-default-manager-monkey created
+role.rbac.authorization.k8s.io/role-default-manager-monkey created
+rolebinding.rbac.authorization.k8s.io/bind-default-manager-monkey created
+
+
+dralquinta-mac:setup dralquinta$ kubectl create token account-default-manager-monkey
+eyJhbGciOiJSUzI1NiIsImtpZCI6Il93S3p6bDN6Wnl3aEdjTUtMTjlpWF9XSVRPcjcwU0lYMVVGQ0pfdXNWZG8ifQ.eyJhdWQiOlsiaHR0cHM6Ly9jb250YWluZXIuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZHJ5cnVucy9sb2NhdGlvbnMvc291dGhhbWVyaWNhLXdlc3QxLWEvY2x1c3RlcnMvY2x1c3Rlci0xIl0sImV4cCI6MTcyNzM2NzM4OSwiaWF0IjoxNzI3MzYzNzg5LCJpc3MiOiJodHRwczovL2NvbnRhaW5lci5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kcnlydW5zL2xvY2F0aW9ucy9zb3V0aGFtZXJpY2Etd2VzdDEtYS9jbHVzdGVycy9jbHVzdGVyLTEiLCJqdGkiOiI2MDhhMzM3Ny1mZTM4LTQ5MTQtOTQ0NS05OGFmZGNiMDA4YTIiLCJrdWJlcm5ldGVzLmlvIjp7Im5hbWVzcGFjZSI6ImRlZmF1bHQiLCJzZXJ2aWNlYWNjb3VudCI6eyJuYW1lIjoiYWNjb3VudC1kZWZhdWx0LW1hbmFnZXItbW9ua2V5IiwidWlkIjoiOWI0NjQ1M2EtNmM5MC00NjYyLTg5NmUtZmZjMGZiOGE2MjU4In19LCJuYmYiOjE3MjczNjM3ODksInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpkZWZhdWx0OmFjY291bnQtZGVmYXVsdC1tYW5hZ2VyLW1vbmtleSJ9.A1wrSiDxHyaH6HO2ruWlEHguazV65wqnj1kesS-QJP5s7CTpYUvsYuQUN3PDg0XwHZdeNXWdHZDTEcqKUQFNQwk9rpk5sBBZurwsHQg1vteJ661P7VlLjyGa7wJB0nEwxTObkmVevyaOkD3jzAxTQnJQBzKkXxvrjSwQDB6QiuDtqYvJJ7WHiT8LdgHqU7MRnprXfcZ8mwlRZ5omfuikhu24aLOmi9QG3hDUB3PqGgz-00w8dr29a3g-EhFjED1Nclk4zbM19y4K9l0aJl3aW1FQjpG08MuO_ZeesavFX_5GcuJixDlu07sGdEFDNmDPiykg_mHojXjp17qVNuh0DQ
 ```
 
-```shell
-dralquinta-mac:chaos-engineering dralquinta$ kubectl create token account-default-viewer-fvdyi
-eyJhbGciOiJSUzI1NiIsImtpZCI6IkZUZmJQRUIwdmlVUDl3UjlEak9sZ29VSjRXSnBFdk5vUDh6QlpXNmhvXzgifQ.eyJhdWQiOlsiaHR0cHM6Ly9jb250YWluZXIuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZHJ5cnVucy9sb2NhdGlvbnMvc291dGhhbWVyaWNhLXdlc3QxL2NsdXN0ZXJzL2F1dG9waWxvdC1jbHVzdGVyLTEiXSwiZXhwIjoxNzI3MzU3MjgxLCJpYXQiOjE3MjczNTM2ODEsImlzcyI6Imh0dHBzOi8vY29udGFpbmVyLmdvb2dsZWFwaXMuY29tL3YxL3Byb2plY3RzL2RyeXJ1bnMvbG9jYXRpb25zL3NvdXRoYW1lcmljYS13ZXN0MS9jbHVzdGVycy9hdXRvcGlsb3QtY2x1c3Rlci0xIiwianRpIjoiN2ZjNWE5OGItMzcyYS00YzNmLWFjMjEtOTI2YzMxYzJmYTQ2Iiwia3ViZXJuZXRlcy5pbyI6eyJuYW1lc3BhY2UiOiJkZWZhdWx0Iiwic2VydmljZWFjY291bnQiOnsibmFtZSI6ImFjY291bnQtZGVmYXVsdC12aWV3ZXItZnZkeWkiLCJ1aWQiOiJjNGUyN2UxMS03MGU0LTQzMjMtOWQ3Mi1hZWJlZjk2YTBjYzUifX0sIm5iZiI6MTcyNzM1MzY4MSwic3ViIjoic3lzdGVtOnNlcnZpY2VhY2NvdW50OmRlZmF1bHQ6YWNjb3VudC1kZWZhdWx0LXZpZXdlci1mdmR5aSJ9.E344OlFL_VXDsqTXdjFJPONvIao9XlbEQSNoC-_oVmgnf6V0iyPJGK2Y0NEkl1ioFCTJ2-Jr8r87RpqhuGyOEt5dIqtaWPzdHDF1WlsRZZgy3QQy1XsWdk5z3KFPcfw4rmLWpVR-Iqtn-pI3i3UNOcyG_n0Ov2NSikJ0WUymjCFInOdko3Ct4WLA4gPV1W22uGhc_do-0C8FdtozkmEk1MK_k1_2ytama1CF9bJl9ms18UPBTLYAqpQuM4PzG43TEypp_o6CBXvG5nEyKEwd2m1cUd7h8yYMQdF8eXoK0OZxkK--lqLs2Yw2GCBsyrEmBy4IJuzodPgdRUe5PHgK3A
-```
 
-5. Apply role to inject JVM errors: 
+
+Now apply chaos mesh role under file ./chaos-engineering/setup/02_chaos-mesh-role.yaml
 
 ```shell
-dralquinta-mac:chaos-engineering dralquinta$ kubectl apply -f setup/02_chaos-mesh-role.yaml 
+dralquinta-mac:setup dralquinta$ kubectl apply -f 02_chaos-mesh-role.yaml 
 role.rbac.authorization.k8s.io/chaos-mesh-namespace-role created
 rolebinding.rbac.authorization.k8s.io/chaos-mesh-rolebinding created
 ```
+
+
+5. Create token and describe it: 
+
+```shell
+dralquinta-mac:setup dralquinta$ kubectl create token account-default-viewer-fvdyi
+eyJhbGciOiJSUzI1NiIsImtpZCI6Il93S3p6bDN6Wnl3aEdjTUtMTjlpWF9XSVRPcjcwU0lYMVVGQ0pfdXNWZG8ifQ.eyJhdWQiOlsiaHR0cHM6Ly9jb250YWluZXIuZ29vZ2xlYXBpcy5jb20vdjEvcHJvamVjdHMvZHJ5cnVucy9sb2NhdGlvbnMvc291dGhhbWVyaWNhLXdlc3QxLWEvY2x1c3RlcnMvY2x1c3Rlci0xIl0sImV4cCI6MTcyNzM2NjY3NCwiaWF0IjoxNzI3MzYzMDc0LCJpc3MiOiJodHRwczovL2NvbnRhaW5lci5nb29nbGVhcGlzLmNvbS92MS9wcm9qZWN0cy9kcnlydW5zL2xvY2F0aW9ucy9zb3V0aGFtZXJpY2Etd2VzdDEtYS9jbHVzdGVycy9jbHVzdGVyLTEiLCJqdGkiOiIyM2ZjZWQwNy00Mjk0LTQ1ZjAtYTE1Yy0xN2Y1YWIzNWE0MWUiLCJrdWJlcm5ldGVzLmlvIjp7Im5hbWVzcGFjZSI6ImRlZmF1bHQiLCJzZXJ2aWNlYWNjb3VudCI6eyJuYW1lIjoiYWNjb3VudC1kZWZhdWx0LXZpZXdlci1mdmR5aSIsInVpZCI6IjBmNzE2YzYwLTFlODctNDRhYS1iNzk4LTc4YTRlMjZlMGQ0YiJ9fSwibmJmIjoxNzI3MzYzMDc0LCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6ZGVmYXVsdDphY2NvdW50LWRlZmF1bHQtdmlld2VyLWZ2ZHlpIn0.DEwhfHjD2R4Gmt8JCt-sqhrF1nMVo_xxG2bAEjCvj_yMGOM9rnfOaDenszW1sAIk474W8MUI6S3yJjDB_Wnlu-C6BxKDVP3Qou1HQwfMRVhfCiZp0RL2fyhJZF6ipth5G0TgxZkqj3zJJTZZfc04o0G77yWPgpurpLSOH6Ze8cKZ53ZA3K5nAViG94Lt-PpAe4h2SB-Lm6uVJikBvi0Z2rOEVHFCDlgujeqey9PGrs5ajG3HXxeGHDNiSoql3mB5NsrJO1MfejBSRJQGlWUghDhGMWndfMPaIZseig_gwvEC99oMCkwcbHWRJ2ciH6ccG9rc9CcS-W4WLQ9hgWPFtg
+```
+
+Describe it in case you lose it: 
+
+
+
+5. Craft experiments in dashboard. 
+
