@@ -2,9 +2,9 @@
 
     <!-- Console appender for stdout (INFO and lower levels) -->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
+        <!-- <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
-        </encoder>
+        </encoder> -->
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>INFO</level> <!-- Only include INFO and lower -->
         </filter>
@@ -13,9 +13,9 @@
     <!-- Console appender for stderr (ERROR and higher levels) -->
     <appender name="STDERR" class="ch.qos.logback.core.ConsoleAppender">
         <target>System.err</target> <!-- Direct to stderr -->
-        <encoder>
+        <!-- <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n%throwable{full}</pattern>
-        </encoder>
+        </encoder> -->
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>ERROR</level> <!-- Only include ERROR and higher -->
         </filter>
