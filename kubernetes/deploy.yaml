@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: springboot-helloworld
-          image:    southamerica-west1-docker.pkg.dev/dryruns/springboot-helloworld/springboot-helloworld:latest 
+          image:    southamerica-west1-docker.pkg.dev/dryruns/springboot-helloworld/springboot-helloworld:latest
           ports:
             - containerPort: 8080 
           livenessProbe: # Added liveness probe
