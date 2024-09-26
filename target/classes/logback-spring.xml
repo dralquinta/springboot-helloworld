@@ -5,11 +5,13 @@
         <encoder>
             <pattern>{"message": "%msg", "severity": "%level", "timestamp": "%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX}"}</pattern>
         </encoder>
+        
     </appender>
 
     <!-- Google Cloud Logging appender -->
     <appender name="CLOUD" class="com.google.cloud.logging.logback.LoggingAppender">
         <log>projects/dryruns/logs/springboot-log</log> <!-- Set your GCP project ID -->
+        <flushLevel>ERROR</flushLevel>
     </appender>
 
     <!-- Root logger to output INFO and above to Google Cloud Logging -->
