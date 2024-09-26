@@ -4,7 +4,7 @@
 PROJECT_ID="dryruns"
 IMAGE_NAME="springboot-helloworld"
 GCR_REPO="southamerica-west1-docker.pkg.dev/${PROJECT_ID}/${IMAGE_NAME}"
-GKE_CLUSTER_NAME="autopilot-cluster-1"
+GKE_CLUSTER_NAME="cluster-1"
 REGION="southamerica-west1"
 
 
