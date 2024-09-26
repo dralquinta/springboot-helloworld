@@ -1,21 +1,30 @@
 <configuration>
 
-    <!-- Console appender for local debugging (outputs to stdout) -->
-    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+    <!-- Console appender for stdout (INFO and lower levels) -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level> <!-- Only include INFO and lower -->
+        </filter>
     </appender>
 
-    <!-- Google Cloud Logging appender -->
-    <appender name="CLOUD" class="com.google.cloud.logging.logback.LoggingAppender">
-        <!-- Remove custom log name to default to stdout/stderr -->
-        <flushLevel>ERROR</flushLevel> <!-- Flush immediately for ERROR and above -->
+    <!-- Console appender for stderr (ERROR and higher levels) -->
+    <appender name="STDERR" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.err</target> <!-- Direct to stderr -->
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level> <!-- Only include ERROR and higher -->
+        </filter>
     </appender>
 
+    <!-- Root logger configuration -->
     <root level="INFO">
-        <appender-ref ref="Console" /> <!-- Local console (stdout) logs for debugging -->
-        <appender-ref ref="CLOUD" />   <!-- Sends logs to Google Cloud Logging -->
+        <appender-ref ref="STDOUT" /> <!-- INFO and below logs go to stdout -->
+        <appender-ref ref="STDERR" /> <!-- ERROR logs go to stderr -->
     </root>
 
 </configuration>
