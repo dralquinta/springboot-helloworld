@@ -14,7 +14,7 @@
     <appender name="STDERR" class="ch.qos.logback.core.ConsoleAppender">
         <target>System.err</target> <!-- Direct to stderr -->
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n%throwable{full}</pattern>
         </encoder>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>ERROR</level> <!-- Only include ERROR and higher -->
