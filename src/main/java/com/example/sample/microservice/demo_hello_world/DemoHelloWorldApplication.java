@@ -9,11 +9,11 @@ import org.springframework.http.ResponseEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 
-import java.io.StringWriter;
 import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.time.Duration;
+import java.time.Instant;
 
 @SpringBootApplication
 public class DemoHelloWorldApplication {
@@ -27,53 +27,58 @@ public class DemoHelloWorldApplication {
 
         private static final Logger logger = LoggerFactory.getLogger(MockController.class);
 
+        // Track application start time
+        private final Instant applicationStartTime = Instant.now();
+        private static final long DEGRADE_AFTER_MINUTES = 2;
+
         @GetMapping("/")
         public ResponseEntity<String> hello(WebRequest request) {
-            // Simulate successful response
-            String successHtml = "<html><head><style>" +
-                    "body {font-family: Arial, sans-serif; text-align: center; padding: 50px;}" +
-                    "h1 {color: green;}" +
-                    "</style></head><body>" +
-                    "<h1>Hello, World!</h1>" +
-                    "<p>Your request was successful!</p>" +
-                    "</body></html>";
+            try {
+                // Calculate the elapsed time since the application started
+                Duration elapsedTime = Duration.between(applicationStartTime, Instant.now());
 
-            // Log the successful request as INFO
-            logger.info("Request successful: Hello, World!");
-            return new ResponseEntity<>(successHtml, HttpStatus.OK);
-        }
-    }
+                // Check if elapsed time is greater than or equal to 2 minutes
+                if (elapsedTime.toMinutes() >= DEGRADE_AFTER_MINUTES) {
+                    // After 2 minutes, always return 500 error
+                    throw new RuntimeException("Simulated Internal Server Error after degradation period");
+                }
 
-    @ControllerAdvice
-    class GlobalExceptionHandler {
+                // Successful response HTML with CSS
+                String successHtml = "<html><head><style>" +
+                        "body {font-family: Arial, sans-serif; text-align: center; padding: 50px;}" +
+                        "h1 {color: green;}" +
+                        "</style></head><body>" +
+                        "<h1>Hello, World!</h1>" +
+                        "<p>Your request was successful!</p>" +
+                        "</body></html>";
 
-        private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+                // Log the successful request as INFO in GCP Cloud Logging
+                logger.info("Request successful: Hello, World!");
+                return new ResponseEntity<>(successHtml, HttpStatus.OK);
 
-        // Handle all exceptions globally
-        @ExceptionHandler(Exception.class)
-        public ResponseEntity<String> handleException(Exception ex, WebRequest request) {
-            // Log the error with full stack trace
-            logger.error("An exception occurred", ex);
+            } catch (Exception ex) {
+                // Log the error with full stack trace as ERROR in GCP Cloud Logging
+                logger.error("Internal Server Error occurred", ex);
 
-            // Capture the stack trace
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
-            ex.printStackTrace(pw);
-            String stackTrace = sw.toString();
+                // Capture the stack trace
+                StringWriter sw = new StringWriter();
+                PrintWriter pw = new PrintWriter(sw);
+                ex.printStackTrace(pw);
+                String stackTrace = sw.toString();
 
-            // Error response HTML with CSS and stack trace
-            String errorHtml = "<html><head><style>" +
-                    "body {font-family: Arial, sans-serif; background-color: #f2dede; padding: 50px;}" +
-                    "h1 {color: red;}" +
-                    "pre {background-color: #f9f2f4; border: 1px solid #e5e5e5; padding: 15px;}" +
-                    "</style></head><body>" +
-                    "<h1>An exception has occurred</h1>" +
-                    "<p>Something went wrong on the server. Please see the details below:</p>" +
-                    "<pre>" + stackTrace + "</pre>" +
-                    "</body></html>";
+                // Error response HTML with CSS and stack trace
+                String errorHtml = "<html><head><style>" +
+                        "body {font-family: Arial, sans-serif; background-color: #f2dede; padding: 50px;}" +
+                        "h1 {color: red;}" +
+                        "pre {background-color: #f9f2f4; border: 1px solid #e5e5e5; padding: 15px;}" +
+                        "</style></head><body>" +
+                        "<h1>500 Internal Server Error</h1>" +
+                        "<p>Something went wrong on the server. Please see the details below:</p>" +
+                        "<pre>" + stackTrace + "</pre>" +
+                        "</body></html>";
 
-            // Return the error message and stack trace with 500 Internal Server Error status
-            return new ResponseEntity<>(errorHtml, HttpStatus.INTERNAL_SERVER_ERROR);
+                return new ResponseEntity<>(errorHtml, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
         }
     }
 }
