@@ -2,8 +2,10 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: springboot-helloworld-deployment
+  annotations:
+    chaos-mesh.org/inject-chaos-mesh-agent: "true"
 spec:
-  replicas: 1 # Adjust the number of replicas as needed
+  replicas: 1 
   selector:
     matchLabels:
       app: springboot-helloworld
@@ -14,9 +16,21 @@ spec:
     spec:
       containers:
         - name: springboot-helloworld
-          image: southamerica-west1-docker.pkg.dev/dryruns/springboot-helloworld/springboot-helloworld:latest # Use the correct image tag
+          image:    southamerica-west1-docker.pkg.dev/dryruns/springboot-helloworld/springboot-helloworld:latest 
           ports:
-            - containerPort: 8080 # Expose the port your Spring Boot app listens on
+            - containerPort: 8080 
+          livenessProbe: # Added liveness probe
+            httpGet:
+              path: / # Assuming you have a /health endpoint for health checks
+              port: 8080
+            initialDelaySeconds: 30 # Delay before the first probe
+            periodSeconds: 10 # Probe every 10 seconds
+          readinessProbe: # Added readiness probe
+            httpGet:
+              path: / # Or another suitable readiness endpoint
+              port: 8080
+            initialDelaySeconds: 15 # Delay before the first probe
+            periodSeconds: 5 # Probe every 5 seconds
 ---
 apiVersion: v1
 kind: Service
@@ -28,5 +42,5 @@ spec:
   ports:
     - protocol: TCP
       port: 80
-      targetPort: 8080 # Map the service port to the container port
-  type: LoadBalancer # Or use NodePort if you don't need external access
+      targetPort: 8080 
+  type: LoadBalancer
