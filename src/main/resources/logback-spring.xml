@@ -1,0 +1,31 @@
+<configuration>
+
+    <!-- Console appender for stdout (INFO and lower levels) -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level> <!-- Only include INFO and lower -->
+        </filter>
+    </appender>
+
+    <!-- Console appender for stderr (ERROR and higher levels) with stack trace -->
+    <appender name="STDERR" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.err</target> <!-- Direct to stderr -->
+        <encoder>
+            <!-- Combine log message and stack trace in the same log entry -->
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n%ex{full}</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level> <!-- Only include ERROR and higher -->
+        </filter>
+    </appender>
+
+    <!-- Root logger configuration -->
+    <root level="INFO">
+        <appender-ref ref="STDOUT" /> <!-- INFO and below logs go to stdout -->
+        <appender-ref ref="STDERR" /> <!-- ERROR logs go to stderr with stack traces -->
+    </root>
+
+</configuration>

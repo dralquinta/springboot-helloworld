@@ -44,11 +44,12 @@ public class DemoHelloWorldApplication {
                         "<p>Your request was successful!</p>" +
                         "</body></html>";
 
+                // Log the successful request as INFO in GCP Cloud Logging
                 logger.info("Request successful: Hello, World!");
                 return new ResponseEntity<>(successHtml, HttpStatus.OK);
 
             } catch (Exception ex) {
-                // Log the error with full stack trace
+                // Log the error with full stack trace as ERROR in GCP Cloud Logging
                 logger.error("Internal Server Error occurred", ex);
 
                 // Capture the stack trace
