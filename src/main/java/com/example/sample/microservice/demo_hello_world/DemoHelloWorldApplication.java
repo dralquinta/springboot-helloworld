@@ -29,16 +29,18 @@ public class DemoHelloWorldApplication {
 
         // Track application start time
         private final Instant applicationStartTime = Instant.now();
-        private static final long DEGRADE_AFTER_MINUTES = 2;
+        private static final long DEGRADE_AFTER_SECONDS = 120; // 2 minutes in seconds
+		
 
         @GetMapping("/")
         public ResponseEntity<String> hello(WebRequest request) {
+			logger.debug("Degradation "+DEGRADE_AFTER_SECONDS);
             try {
                 // Calculate the elapsed time since the application started
                 Duration elapsedTime = Duration.between(applicationStartTime, Instant.now());
 
-                // Check if elapsed time is greater than or equal to 2 minutes
-                if (elapsedTime.toMinutes() >= DEGRADE_AFTER_MINUTES) {
+                // Check if elapsed time is greater than or equal to 2 minutes (120 seconds)
+                if (elapsedTime.getSeconds() >= DEGRADE_AFTER_SECONDS) {
                     // After 2 minutes, always return 500 error
                     throw new RuntimeException("Simulated Internal Server Error after degradation period");
                 }
@@ -53,7 +55,7 @@ public class DemoHelloWorldApplication {
                         "</body></html>";
 
                 // Log the successful request as INFO in GCP Cloud Logging
-                logger.info("Request successful: Hello, World!");
+                logger.info("Request successful: Hello, World! "+elapsedTime.getSeconds());
                 return new ResponseEntity<>(successHtml, HttpStatus.OK);
 
             } catch (Exception ex) {
