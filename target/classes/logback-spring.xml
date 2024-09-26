@@ -1,6 +1,6 @@
 <configuration>
 
-    <!-- Console appender for local debugging -->
+    <!-- Console appender for local debugging (outputs to stdout) -->
     <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
@@ -9,14 +9,12 @@
 
     <!-- Google Cloud Logging appender -->
     <appender name="CLOUD" class="com.google.cloud.logging.logback.LoggingAppender">
-        <!-- Ensure the correct log name, replace YOUR_PROJECT_ID -->
-        <log>projects/dryruns/logs/springboot-log</log> 
-        <flushLevel>ERROR</flushLevel> <!-- Flush logs of ERROR level and above immediately -->
+        <!-- Remove custom log name to default to stdout/stderr -->
+        <flushLevel>ERROR</flushLevel> <!-- Flush immediately for ERROR and above -->
     </appender>
 
-    <!-- Root logger configuration -->
     <root level="INFO">
-        <appender-ref ref="Console" /> <!-- Logs to stdout for debugging -->
+        <appender-ref ref="Console" /> <!-- Local console (stdout) logs for debugging -->
         <appender-ref ref="CLOUD" />   <!-- Sends logs to Google Cloud Logging -->
     </root>
 
