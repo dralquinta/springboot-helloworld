@@ -46,6 +46,14 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <!-- GCP Cloud Logging Dependency-->
+        <dependency>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>google-cloud-logging-logback</artifactId>
+            <version>0.131.12-alpha</version>
+        </dependency>
+
     </dependencies>
 
     <build>
