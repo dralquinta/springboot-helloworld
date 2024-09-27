@@ -212,6 +212,12 @@ kubectl label namespace default istio-injection=enabled
 namespace/default labeled
 ```
 
+Install gateway
+
+```shell
+helm upgrade --install istio-ingressgateway istio/gateway --namespace istio-system
+```
+
 3. Install OpenTelemetry
 
 a. Install cert-manager:
