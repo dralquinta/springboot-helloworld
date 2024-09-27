@@ -37,7 +37,7 @@ public class DemoHelloWorldApplication {
 
         @GetMapping("/")
         public ResponseEntity<String> hello(WebRequest request) {
-			logger.debug("Degradation "+DEGRADE_AFTER_SECONDS);
+			logger.info("*******NOTICE***** Degradation Status: "+ DEGRADE+" Degradation will start after "+DEGRADE_AFTER_SECONDS+" seconds");
             try {
                 // Calculate the elapsed time since the application started
                 Duration elapsedTime = Duration.between(applicationStartTime, Instant.now());
