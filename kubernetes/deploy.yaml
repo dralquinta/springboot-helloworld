@@ -25,6 +25,11 @@ spec:
                   configMapKeyRef:
                     key: degradeAfterSeconds
                     name: degradation-config
+              - name: DEGRADE
+                valueFrom:
+                  configMapKeyRef:
+                    key: degrade
+                    name: degradation-config
 ---
 apiVersion: v1
 kind: Service

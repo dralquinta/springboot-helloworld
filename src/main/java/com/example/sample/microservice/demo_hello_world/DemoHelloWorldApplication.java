@@ -32,6 +32,8 @@ public class DemoHelloWorldApplication {
         // Read the degradation time from the environment variable (with a default)
         private final long DEGRADE_AFTER_SECONDS = Long.parseLong(
                 System.getenv().getOrDefault("DEGRADE_AFTER_SECONDS", "120"));
+        private final boolean DEGRADE = Boolean.parseBoolean(
+            System.getenv().getOrDefault("DEGRADE", "false"));    
 
         @GetMapping("/")
         public ResponseEntity<String> hello(WebRequest request) {
@@ -40,9 +42,10 @@ public class DemoHelloWorldApplication {
                 // Calculate the elapsed time since the application started
                 Duration elapsedTime = Duration.between(applicationStartTime, Instant.now());
 
+                
                 // Check if elapsed time is greater than or equal to 2 minutes (120 seconds)
-                if (elapsedTime.getSeconds() >= DEGRADE_AFTER_SECONDS) {
-                    // After 2 minutes, always return 500 error
+                if ((elapsedTime.getSeconds() >= DEGRADE_AFTER_SECONDS) && (DEGRADE == true)) {
+                    // If degrade is enabled and time threadshold has passed, always return 500 error
                     throw new RuntimeException("Simulated Internal Server Error after degradation period");
                 }
 
