@@ -1,0 +1,24 @@
+apiVersion: opentelemetry.io/v1alpha1
+kind: OpenTelemetryCollector
+metadata:
+  name: springboot-otel
+  namespace: default
+spec:
+  config: |
+    receivers:
+      otlp:
+        protocols:
+          http:
+          grpc:
+    exporters:
+      googlecloud:
+        project: dryruns
+      logging:
+    service:
+      pipelines:
+        traces:
+          receivers: [otlp]
+          exporters: [googlecloud, logging]
+        metrics:
+          receivers: [otlp]
+          exporters: [googlecloud, logging]

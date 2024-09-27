@@ -118,3 +118,93 @@ Describe it in case you lose it:
 
 5. Craft experiments in dashboard. 
 
+
+
+----
+
+
+Enable Istio
+
+1. run: 
+
+```shell
+helm repo add istio https://istio-release.storage.googleapis.com/charts
+"istio" has been added to your repositories
+
+kubectl create namespace istio-system
+namespace/istio-system created
+
+helm install istio-base istio/base -n istio-system
+NAME: istio-base
+LAST DEPLOYED: Fri Sep 27 13:30:10 2024
+NAMESPACE: istio-system
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+Istio base successfully installed!
+
+To learn more about the release, try:
+  $ helm status istio-base -n istio-system
+  $ helm get all istio-base -n istio-system
+
+helm install istiod istio/istiod -n istio-system --wait
+NAME: istiod
+LAST DEPLOYED: Fri Sep 27 13:30:34 2024
+NAMESPACE: istio-system
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+"istiod" successfully installed!
+
+To learn more about the release, try:
+  $ helm status istiod -n istio-system
+  $ helm get all istiod -n istio-system
+
+Next steps:
+  * Deploy a Gateway: https://istio.io/latest/docs/setup/additional-setup/gateway/
+  * Try out our tasks to get started on common configurations:
+    * https://istio.io/latest/docs/tasks/traffic-management
+    * https://istio.io/latest/docs/tasks/security/
+    * https://istio.io/latest/docs/tasks/policy-enforcement/
+  * Review the list of actively supported releases, CVE publications and our hardening guide:
+    * https://istio.io/latest/docs/releases/supported-releases/
+    * https://istio.io/latest/news/security/
+    * https://istio.io/latest/docs/ops/best-practices/security/
+
+For further documentation see https://istio.io website
+```
+
+2. Label namespace to do sidecar injection: 
+
+```shell
+# Label the namespace to enable Istio sidecar injection
+kubectl label namespace default istio-injection=enabled
+namespace/default labeled
+```
+
+3. Install OpenTelemetry
+
+```shell
+kubectl apply -f https://github.com/open-telemetry/opentelemetry-operator/releases/download/v0.34.0/opentelemetry-operator.yaml
+namespace/opentelemetry-operator-system created
+customresourcedefinition.apiextensions.k8s.io/opentelemetrycollectors.opentelemetry.io created
+serviceaccount/opentelemetry-operator-controller-manager created
+role.rbac.authorization.k8s.io/opentelemetry-operator-leader-election-role created
+clusterrole.rbac.authorization.k8s.io/opentelemetry-operator-manager-role created
+clusterrole.rbac.authorization.k8s.io/opentelemetry-operator-metrics-reader created
+clusterrole.rbac.authorization.k8s.io/opentelemetry-operator-proxy-role created
+rolebinding.rbac.authorization.k8s.io/opentelemetry-operator-leader-election-rolebinding created
+clusterrolebinding.rbac.authorization.k8s.io/opentelemetry-operator-manager-rolebinding created
+clusterrolebinding.rbac.authorization.k8s.io/opentelemetry-operator-proxy-rolebinding created
+service/opentelemetry-operator-controller-manager-metrics-service created
+service/opentelemetry-operator-webhook-service created
+deployment.apps/opentelemetry-operator-controller-manager created
+mutatingwebhookconfiguration.admissionregistration.k8s.io/opentelemetry-operator-mutating-webhook-configuration created
+validatingwebhookconfiguration.admissionregistration.k8s.io/opentelemetry-operator-validating-webhook-configuration created
+resource mapping not found for name: "opentelemetry-operator-serving-cert" namespace: "opentelemetry-operator-system" from "https://github.com/open-telemetry/opentelemetry-operator/releases/download/v0.34.0/opentelemetry-operator.yaml": no matches for kind "Certificate" in version "cert-manager.io/v1alpha2"
+ensure CRDs are installed first
+resource mapping not found for name: "opentelemetry-operator-selfsigned-issuer" namespace: "opentelemetry-operator-system" from "https://github.com/open-telemetry/opentelemetry-operator/releases/download/v0.34.0/opentelemetry-operator.yaml": no matches for kind "Issuer" in version "cert-manager.io/v1alpha2"
+ensure CRDs are installed first
+```
