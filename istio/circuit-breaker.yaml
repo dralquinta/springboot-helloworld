@@ -1,0 +1,13 @@
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: springboot-circuit-breaker
+  namespace: default
+spec:
+  host: springboot-helloworld-service
+  trafficPolicy:
+    outlierDetection:
+      consecutive5xxErrors: 2 # Circuit breaks after 2 consecutive 5xx errors
+      interval: 10s            # Check the condition every 10 seconds
+      baseEjectionTime: 30s    # Eject for 30 seconds
+      maxEjectionPercent: 100  # Eject all instances if necessary
