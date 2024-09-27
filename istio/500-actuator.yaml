@@ -6,11 +6,11 @@ spec:
   hosts:
     - springboot-helloworld-service
   http:
-  - route:
-    - destination:
-        host: springboot-helloworld-service
-      fault:
+    - fault:
         abort:
           httpStatus: 500
           percentage:
             value: 100 # Adjust this to control the error rate
+      route:
+        - destination:
+            host: springboot-helloworld-service
