@@ -4,7 +4,7 @@ metadata:
   name: springboot-circuit-breaker
   namespace: default
 spec:
-  host: springboot-helloworld-service
+  host: springboot-helloworld-service.default.svc.cluster.local
   trafficPolicy:
     outlierDetection:
       consecutive5xxErrors: 2 # Circuit breaks after 2 consecutive 5xx errors
