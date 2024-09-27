@@ -125,6 +125,8 @@ Describe it in case you lose it:
 
 Enable Istio
 
+Followed this documentation: https://istio.io/latest/docs/setup/install/helm/ 
+
 1. run: 
 
 ```shell
@@ -134,9 +136,13 @@ helm repo add istio https://istio-release.storage.googleapis.com/charts
 kubectl create namespace istio-system
 namespace/istio-system created
 
-helm install istio-base istio/base -n istio-system
+```
+
+```shell
+
+dalquint@cloudshell:~$ helm install istio-base istio/base -n istio-system --set defaultRevision=default
 NAME: istio-base
-LAST DEPLOYED: Fri Sep 27 13:30:10 2024
+LAST DEPLOYED: Fri Sep 27 15:38:50 2024
 NAMESPACE: istio-system
 STATUS: deployed
 REVISION: 1
@@ -176,6 +182,28 @@ Next steps:
 For further documentation see https://istio.io website
 ```
 
+```shell
+dalquint@cloudshell:~$ kubectl create namespace istio-ingress
+helm install istio-ingress istio/gateway -n istio-ingress --wait
+namespace/istio-ingress created
+NAME: istio-ingress
+LAST DEPLOYED: Fri Sep 27 15:40:52 2024
+NAMESPACE: istio-ingress
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+"istio-ingress" successfully installed!
+
+To learn more about the release, try:
+  $ helm status istio-ingress -n istio-ingress
+  $ helm get all istio-ingress -n istio-ingress
+
+Next steps:
+  * Deploy an HTTP Gateway: https://istio.io/latest/docs/tasks/traffic-management/ingress/ingress-control/
+  * Deploy an HTTPS Gateway: https://istio.io/latest/docs/tasks/traffic-management/ingress/secure-ingress/
+```
+
 2. Label namespace to do sidecar injection: 
 
 ```shell
@@ -186,25 +214,83 @@ namespace/default labeled
 
 3. Install OpenTelemetry
 
-```shell
-kubectl apply -f https://github.com/open-telemetry/opentelemetry-operator/releases/download/v0.34.0/opentelemetry-operator.yaml
-namespace/opentelemetry-operator-system created
-customresourcedefinition.apiextensions.k8s.io/opentelemetrycollectors.opentelemetry.io created
-serviceaccount/opentelemetry-operator-controller-manager created
-role.rbac.authorization.k8s.io/opentelemetry-operator-leader-election-role created
-clusterrole.rbac.authorization.k8s.io/opentelemetry-operator-manager-role created
-clusterrole.rbac.authorization.k8s.io/opentelemetry-operator-metrics-reader created
-clusterrole.rbac.authorization.k8s.io/opentelemetry-operator-proxy-role created
-rolebinding.rbac.authorization.k8s.io/opentelemetry-operator-leader-election-rolebinding created
-clusterrolebinding.rbac.authorization.k8s.io/opentelemetry-operator-manager-rolebinding created
-clusterrolebinding.rbac.authorization.k8s.io/opentelemetry-operator-proxy-rolebinding created
-service/opentelemetry-operator-controller-manager-metrics-service created
-service/opentelemetry-operator-webhook-service created
-deployment.apps/opentelemetry-operator-controller-manager created
-mutatingwebhookconfiguration.admissionregistration.k8s.io/opentelemetry-operator-mutating-webhook-configuration created
-validatingwebhookconfiguration.admissionregistration.k8s.io/opentelemetry-operator-validating-webhook-configuration created
-resource mapping not found for name: "opentelemetry-operator-serving-cert" namespace: "opentelemetry-operator-system" from "https://github.com/open-telemetry/opentelemetry-operator/releases/download/v0.34.0/opentelemetry-operator.yaml": no matches for kind "Certificate" in version "cert-manager.io/v1alpha2"
-ensure CRDs are installed first
-resource mapping not found for name: "opentelemetry-operator-selfsigned-issuer" namespace: "opentelemetry-operator-system" from "https://github.com/open-telemetry/opentelemetry-operator/releases/download/v0.34.0/opentelemetry-operator.yaml": no matches for kind "Issuer" in version "cert-manager.io/v1alpha2"
-ensure CRDs are installed first
-```
+a. Install cert-manager:
+    Follow this documentation: https://cert-manager.io/docs/installation/
+
+    ```shell
+    dalquint@cloudshell:~$ kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.15.3/cert-manager.yaml
+    namespace/cert-manager created
+    customresourcedefinition.apiextensions.k8s.io/certificaterequests.cert-manager.io created
+    customresourcedefinition.apiextensions.k8s.io/certificates.cert-manager.io created
+    customresourcedefinition.apiextensions.k8s.io/challenges.acme.cert-manager.io created
+    customresourcedefinition.apiextensions.k8s.io/clusterissuers.cert-manager.io created
+    customresourcedefinition.apiextensions.k8s.io/issuers.cert-manager.io created
+    customresourcedefinition.apiextensions.k8s.io/orders.acme.cert-manager.io created
+    serviceaccount/cert-manager-cainjector created
+    serviceaccount/cert-manager created
+    serviceaccount/cert-manager-webhook created
+    clusterrole.rbac.authorization.k8s.io/cert-manager-cainjector created
+    clusterrole.rbac.authorization.k8s.io/cert-manager-controller-issuers created
+    clusterrole.rbac.authorization.k8s.io/cert-manager-controller-clusterissuers created
+    clusterrole.rbac.authorization.k8s.io/cert-manager-controller-certificates created
+    clusterrole.rbac.authorization.k8s.io/cert-manager-controller-orders created
+    clusterrole.rbac.authorization.k8s.io/cert-manager-controller-challenges created
+    clusterrole.rbac.authorization.k8s.io/cert-manager-controller-ingress-shim created
+    clusterrole.rbac.authorization.k8s.io/cert-manager-cluster-view created
+    clusterrole.rbac.authorization.k8s.io/cert-manager-view created
+    clusterrole.rbac.authorization.k8s.io/cert-manager-edit created
+    clusterrole.rbac.authorization.k8s.io/cert-manager-controller-approve:cert-manager-io created
+    clusterrole.rbac.authorization.k8s.io/cert-manager-controller-certificatesigningrequests created
+    clusterrole.rbac.authorization.k8s.io/cert-manager-webhook:subjectaccessreviews created
+    clusterrolebinding.rbac.authorization.k8s.io/cert-manager-cainjector created
+    clusterrolebinding.rbac.authorization.k8s.io/cert-manager-controller-issuers created
+    clusterrolebinding.rbac.authorization.k8s.io/cert-manager-controller-clusterissuers created
+    clusterrolebinding.rbac.authorization.k8s.io/cert-manager-controller-certificates created
+    clusterrolebinding.rbac.authorization.k8s.io/cert-manager-controller-orders created
+    clusterrolebinding.rbac.authorization.k8s.io/cert-manager-controller-challenges created
+    clusterrolebinding.rbac.authorization.k8s.io/cert-manager-controller-ingress-shim created
+    clusterrolebinding.rbac.authorization.k8s.io/cert-manager-controller-approve:cert-manager-io created
+    clusterrolebinding.rbac.authorization.k8s.io/cert-manager-controller-certificatesigningrequests created
+    clusterrolebinding.rbac.authorization.k8s.io/cert-manager-webhook:subjectaccessreviews created
+    role.rbac.authorization.k8s.io/cert-manager-cainjector:leaderelection created
+    role.rbac.authorization.k8s.io/cert-manager:leaderelection created
+    role.rbac.authorization.k8s.io/cert-manager-webhook:dynamic-serving created
+    rolebinding.rbac.authorization.k8s.io/cert-manager-cainjector:leaderelection created
+    rolebinding.rbac.authorization.k8s.io/cert-manager:leaderelection created
+    rolebinding.rbac.authorization.k8s.io/cert-manager-webhook:dynamic-serving created
+    service/cert-manager created
+    service/cert-manager-webhook created
+    deployment.apps/cert-manager-cainjector created
+    deployment.apps/cert-manager created
+    deployment.apps/cert-manager-webhook created
+    mutatingwebhookconfiguration.admissionregistration.k8s.io/cert-manager-webhook created
+    validatingwebhookconfiguration.admissionregistration.k8s.io/cert-manager-webhook created
+    ```
+
+b. Install Open Telemetry: 
+    Follow this documentation: https://github.com/open-telemetry/opentelemetry-operator
+
+
+    ```shell
+    dalquint@cloudshell:~$ kubectl apply -f https://github.com/open-telemetry/opentelemetry-operator/releases/latest/download/opentelemetry-operator.yaml
+    namespace/opentelemetry-operator-system created
+    customresourcedefinition.apiextensions.k8s.io/instrumentations.opentelemetry.io created
+    customresourcedefinition.apiextensions.k8s.io/opampbridges.opentelemetry.io created
+    customresourcedefinition.apiextensions.k8s.io/opentelemetrycollectors.opentelemetry.io created
+    serviceaccount/opentelemetry-operator-controller-manager created
+    role.rbac.authorization.k8s.io/opentelemetry-operator-leader-election-role created
+    clusterrole.rbac.authorization.k8s.io/opentelemetry-operator-manager-role created
+    clusterrole.rbac.authorization.k8s.io/opentelemetry-operator-metrics-reader created
+    clusterrole.rbac.authorization.k8s.io/opentelemetry-operator-proxy-role created
+    rolebinding.rbac.authorization.k8s.io/opentelemetry-operator-leader-election-rolebinding created
+    clusterrolebinding.rbac.authorization.k8s.io/opentelemetry-operator-manager-rolebinding created
+    clusterrolebinding.rbac.authorization.k8s.io/opentelemetry-operator-proxy-rolebinding created
+    service/opentelemetry-operator-controller-manager-metrics-service created
+    service/opentelemetry-operator-webhook-service created
+    deployment.apps/opentelemetry-operator-controller-manager created
+    certificate.cert-manager.io/opentelemetry-operator-serving-cert created
+    issuer.cert-manager.io/opentelemetry-operator-selfsigned-issuer created
+    mutatingwebhookconfiguration.admissionregistration.k8s.io/opentelemetry-operator-mutating-webhook-configuration created
+    validatingwebhookconfiguration.admissionregistration.k8s.io/opentelemetry-operator-validating-webhook-configuration created
+    ```
+
