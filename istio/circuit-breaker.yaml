@@ -8,5 +8,5 @@ spec:
     outlierDetection:
       consecutive5xxErrors: 1 # Number of 5xx errors to trigger circuit breaking
       interval: 1s # Time window to evaluate errors
-      baseEjectionTime: 30s # Minimum time the service is ejected from the pool
+      baseEjectionTime: 500s # Minimum time the service is ejected from the pool
       maxEjectionPercent: 100 # Maximum % of hosts ejected from the pool
