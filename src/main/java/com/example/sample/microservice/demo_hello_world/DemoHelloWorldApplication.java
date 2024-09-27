@@ -29,8 +29,9 @@ public class DemoHelloWorldApplication {
 
         // Track application start time
         private final Instant applicationStartTime = Instant.now();
-        private static final long DEGRADE_AFTER_SECONDS = 120; // 2 minutes in seconds
-		
+        // Read the degradation time from the environment variable (with a default)
+        private final long DEGRADE_AFTER_SECONDS = Long.parseLong(
+                System.getenv().getOrDefault("DEGRADE_AFTER_SECONDS", "120"));
 
         @GetMapping("/")
         public ResponseEntity<String> hello(WebRequest request) {

@@ -19,6 +19,12 @@ spec:
           image: southamerica-west1-docker.pkg.dev/dryruns/springboot-helloworld/springboot-helloworld:latest
           ports:
             - containerPort: 8080 
+          env:
+              - name: DEGRADE_AFTER_SECONDS
+                valueFrom:
+                  configMapKeyRef:
+                    key: degradeAfterSeconds
+                    name: degradation-config
           livenessProbe: # Added liveness probe
             httpGet:
               path: / # Assuming you have a /health endpoint for health checks
