@@ -1,4 +1,36 @@
 apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: springboot-helloworld-gateway
+spec:
+  selector:
+    istio: ingressgateway # Use Istio's ingress gateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: springboot-helloworld-virtualservice
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - springboot-helloworld-gateway
+  http:
+  - route:
+    - destination:
+        host: springboot-helloworld-service
+        port:
+          number: 80
+
+---
+apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
   name: springboot-helloworld-service-destination-rule
