@@ -1,13 +1,12 @@
-apiVersion: networking.istio.io/v1beta1
+apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
-  name: springboot-circuit-breaker
-  namespace: default
+  name: springboot-helloworld-service-destination-rule
 spec:
-  host: springboot-helloworld-service.default.svc.cluster.local
+  host: springboot-helloworld-service
   trafficPolicy:
     outlierDetection:
-      consecutive5xxErrors: 2 # Circuit breaks after 2 consecutive 5xx errors
-      interval: 10s            # Check the condition every 10 seconds
-      baseEjectionTime: 30s    # Eject for 30 seconds
-      maxEjectionPercent: 100  # Eject all instances if necessary
+      consecutive5xxErrors: 1 # Number of 5xx errors to trigger circuit breaking
+      interval: 1s # Time window to evaluate errors
+      baseEjectionTime: 30s # Minimum time the service is ejected from the pool
+      maxEjectionPercent: 100 # Maximum % of hosts ejected from the pool

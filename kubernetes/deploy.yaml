@@ -25,18 +25,6 @@ spec:
                   configMapKeyRef:
                     key: degradeAfterSeconds
                     name: degradation-config
-          # livenessProbe: # Added liveness probe
-          #   httpGet:
-          #     path: / # Assuming you have a /health endpoint for health checks
-          #     port: 8080
-          #   initialDelaySeconds: 30 # Delay before the first probe
-          #   periodSeconds: 10 # Probe every 10 seconds
-          # readinessProbe: # Added readiness probe
-          #   httpGet:
-          #     path: / # Or another suitable readiness endpoint
-          #     port: 8080
-          #   initialDelaySeconds: 15 # Delay before the first probe
-          #   periodSeconds: 5 # Probe every 5 seconds
 ---
 apiVersion: v1
 kind: Service
