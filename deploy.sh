@@ -23,5 +23,5 @@ gcloud container clusters get-credentials ${GKE_CLUSTER_NAME} --region ${REGION}
 
 
 # Deploy to GKE
-kubectl apply -f ./kubernetes/degradation-config-map.yaml
+kubectl apply -f ./kubernetes/degration-config-map.yaml
 kubectl apply -f ./kubernetes/deploy.yaml
