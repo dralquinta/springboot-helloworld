@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap # Define the ConfigMap
+metadata:
+  name: degradation-config
+data:
+  degrade: "false"
+  degradeAfterSeconds: "500" # Default value, can be changed later

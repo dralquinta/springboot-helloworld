@@ -4,8 +4,8 @@
 PROJECT_ID="dryruns"
 IMAGE_NAME="springboot-helloworld"
 GCR_REPO="southamerica-west1-docker.pkg.dev/${PROJECT_ID}/${IMAGE_NAME}"
-GKE_CLUSTER_NAME="autopilot-cluster-1"
-REGION="southamerica-west1"
+GKE_CLUSTER_NAME="cluster-1"
+REGION="southamerica-west1-a"
 
 
 # Build the Spring Boot JAR
@@ -23,4 +23,5 @@ gcloud container clusters get-credentials ${GKE_CLUSTER_NAME} --region ${REGION}
 
 
 # Deploy to GKE
+kubectl apply -f ./kubernetes/degradation-config-map.yaml
 kubectl apply -f ./kubernetes/deploy.yaml

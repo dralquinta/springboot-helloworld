@@ -2,8 +2,10 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: springboot-helloworld-deployment
+  annotations:
+    chaos-mesh.org/inject-chaos-mesh-agent: "true"
 spec:
-  replicas: 1 # Adjust the number of replicas as needed
+  replicas: 1 
   selector:
     matchLabels:
       app: springboot-helloworld
@@ -14,9 +16,20 @@ spec:
     spec:
       containers:
         - name: springboot-helloworld
-          image: southamerica-west1-docker.pkg.dev/dryruns/springboot-helloworld/springboot-helloworld:latest # Use the correct image tag
+          image: southamerica-west1-docker.pkg.dev/dryruns/springboot-helloworld/springboot-helloworld:latest
           ports:
-            - containerPort: 8080 # Expose the port your Spring Boot app listens on
+            - containerPort: 8080 
+          env:
+              - name: DEGRADE_AFTER_SECONDS
+                valueFrom:
+                  configMapKeyRef:
+                    key: degradeAfterSeconds
+                    name: degradation-config
+              - name: DEGRADE
+                valueFrom:
+                  configMapKeyRef:
+                    key: degrade
+                    name: degradation-config
 ---
 apiVersion: v1
 kind: Service
@@ -28,5 +41,5 @@ spec:
   ports:
     - protocol: TCP
       port: 80
-      targetPort: 8080 # Map the service port to the container port
-  type: LoadBalancer # Or use NodePort if you don't need external access
+      targetPort: 8080 
+  type: LoadBalancer

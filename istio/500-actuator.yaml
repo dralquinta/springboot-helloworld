@@ -1,0 +1,16 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: springboot-helloworld-service-fault-injection
+spec:
+  hosts:
+    - springboot-helloworld-service
+  http:
+    - fault:
+        abort:
+          httpStatus: 500
+          percentage:
+            value: 100 # Adjust this to control the error rate
+      route:
+        - destination:
+            host: springboot-helloworld-service

@@ -12,7 +12,8 @@ import org.springframework.web.context.request.WebRequest;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Random;
+import java.time.Duration;
+import java.time.Instant;
 
 @SpringBootApplication
 public class DemoHelloWorldApplication {
@@ -24,15 +25,28 @@ public class DemoHelloWorldApplication {
     @RestController
     class MockController {
 
-        private final Random random = new Random();
         private static final Logger logger = LoggerFactory.getLogger(MockController.class);
+
+        // Track application start time
+        private final Instant applicationStartTime = Instant.now();
+        // Read the degradation time from the environment variable (with a default)
+        private final long DEGRADE_AFTER_SECONDS = Long.parseLong(
+                System.getenv().getOrDefault("DEGRADE_AFTER_SECONDS", "120"));
+        private final boolean DEGRADE = Boolean.parseBoolean(
+            System.getenv().getOrDefault("DEGRADE", "false"));    
 
         @GetMapping("/")
         public ResponseEntity<String> hello(WebRequest request) {
+			
             try {
-                // 50% chance of error
-                if (random.nextInt(100) < 50) {
-                    throw new RuntimeException("Simulated Internal Server Error");
+                logger.info("*******NOTICE***** Degradation Status: "+ DEGRADE+" Degradation will start after "+DEGRADE_AFTER_SECONDS+" seconds");
+                // Calculate the elapsed time since the application started
+                Duration elapsedTime = Duration.between(applicationStartTime, Instant.now());
+                
+                // Check if elapsed time is greater than or equal to 2 minutes (120 seconds)
+                if ((elapsedTime.getSeconds() >= DEGRADE_AFTER_SECONDS) && (DEGRADE == true)) {
+                    // If degrade is enabled and time threadshold has passed, always return 500 error
+                    throw new RuntimeException("Simulated Internal Server Error after degradation period");
                 }
 
                 // Successful response HTML with CSS
@@ -45,7 +59,7 @@ public class DemoHelloWorldApplication {
                         "</body></html>";
 
                 // Log the successful request as INFO in GCP Cloud Logging
-                logger.info("Request successful: Hello, World!");
+                logger.info("Request successful: Hello, World! "+elapsedTime.getSeconds());
                 return new ResponseEntity<>(successHtml, HttpStatus.OK);
 
             } catch (Exception ex) {
